@@ -62,26 +62,51 @@
         
         .photo-carousel {
             width: 100%;
-            height: 200px;
+            height: 220px;
             border-radius: 20px;
             overflow: hidden;
             margin-bottom: 25px;
             position: relative;
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: #f0f0f0;
         }
         
-        .photo-carousel img {
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 100%;
+        }
+        
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        
+        .carousel-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
         
-        .photo-placeholder {
-            font-size: 3rem;
-            opacity: 0.3;
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .dot.active {
+            background: white;
         }
         
         h1 {
@@ -94,7 +119,7 @@
         
         .subtitle {
             font-size: 1rem;
-            color: #ff4081;
+            color: #666;
             margin-bottom: 30px;
             font-weight: 400;
             line-height: 1.5;
@@ -140,16 +165,8 @@
             padding: 15px 30px;
             position: fixed;
             z-index: 10;
-            animation: moveAround 8s infinite ease-in-out;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-        
-        @keyframes moveAround {
-            0% { left: 10%; top: 10%; }
-            25% { left: 80%; top: 20%; }
-            50% { left: 85%; top: 75%; }
-            75% { left: 15%; top: 80%; }
-            100% { left: 10%; top: 10%; }
+            transition: all 8s ease-in-out;
         }
         
         .coupons-screen {
@@ -291,14 +308,18 @@
     
     <div class="container">
         <div class="photo-carousel">
-            <div class="photo-placeholder">💑</div>
-            <!-- Add your photos here! -->
+            <div class="carousel-track" id="carouselTrack">
+                <div class="carousel-slide"><img src="photos/photo1.jpg" alt="Us"></div>
+                <div class="carousel-slide"><img src="photos/photo2.jpg" alt="Us"></div>
+                <div class="carousel-slide"><img src="photos/photo3.jpg" alt="Us"></div>
+                <div class="carousel-slide"><img src="photos/photo4.jpg" alt="Us"></div>
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
         </div>
         
-        <h1>Happy Valentine's Day! 💕</h1>
+        <h1>Happy Valentine's Day 💕</h1>
         <p class="subtitle">
-            Every day with you is a gift. Through all the chaos of chasing toddlers, 
-            changing diapers, and surviving on coffee... I wouldn't want to do life with anyone else. ❤️
+            Another year with you. Through the chaos of two toddlers and everything in between, you're still my favorite person.
         </p>
         
         <div class="buttons-container">
@@ -310,69 +331,100 @@
     
     <div class="coupons-screen" id="couponsScreen">
         <div class="coupons-container">
-            <h2 class="coupons-title">Your Love Coupons! 🎁</h2>
-            <p class="coupons-subtitle">Tap any coupon to redeem it whenever you want!</p>
+            <h2 class="coupons-title">Your Coupons 🎁</h2>
+            <p class="coupons-subtitle">Tap to redeem whenever you want!</p>
             
             <div class="coupon" data-coupon="sleep-in">
                 <div class="coupon-emoji">😴</div>
                 <div class="coupon-title">Sleep In Saturday</div>
-                <div class="coupon-desc">I'll handle both kids in the morning. You sleep as long as you want!</div>
-                <div class="coupon-status">Tap to redeem</div>
-            </div>
-            
-            <div class="coupon" data-coupon="date-night">
-                <div class="coupon-emoji">🍷</div>
-                <div class="coupon-title">Date Night</div>
-                <div class="coupon-desc">One evening out, just us two. I'll arrange the babysitter!</div>
+                <div class="coupon-desc">I've got both kids in the morning. Sleep as long as you want.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
             
             <div class="coupon" data-coupon="massage">
                 <div class="coupon-emoji">💆‍♀️</div>
                 <div class="coupon-title">30-Minute Massage</div>
-                <div class="coupon-desc">Full back and shoulder massage. You deserve it after everything you do!</div>
+                <div class="coupon-desc">Back and shoulders. You've earned it.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
             
             <div class="coupon" data-coupon="breakfast">
                 <div class="coupon-emoji">🥞</div>
                 <div class="coupon-title">Breakfast in Bed</div>
-                <div class="coupon-desc">Your favorite breakfast delivered to you while you relax!</div>
-                <div class="coupon-status">Tap to redeem</div>
-            </div>
-            
-            <div class="coupon" data-coupon="movie">
-                <div class="coupon-emoji">🎬</div>
-                <div class="coupon-title">Your Movie Choice</div>
-                <div class="coupon-desc">You pick the movie, no veto power allowed. Even if it's a rom-com! 😊</div>
+                <div class="coupon-desc">Whatever you want, delivered while you relax.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
             
             <div class="coupon" data-coupon="chores">
                 <div class="coupon-emoji">🧹</div>
                 <div class="coupon-title">Chore Day Off</div>
-                <div class="coupon-desc">I'll handle all the housework for the day. You relax!</div>
+                <div class="coupon-desc">I'll handle all the housework. You relax.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
             
             <div class="coupon" data-coupon="bath">
                 <div class="coupon-emoji">🛁</div>
-                <div class="coupon-title">Uninterrupted Bath Time</div>
-                <div class="coupon-desc">I've got the kids. Take a long, peaceful bath with no interruptions!</div>
+                <div class="coupon-title">Uninterrupted Bath</div>
+                <div class="coupon-desc">I've got the kids. Take as long as you need.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
             
             <div class="coupon" data-coupon="dinner">
                 <div class="coupon-emoji">👨‍🍳</div>
                 <div class="coupon-title">Dinner of Your Choice</div>
-                <div class="coupon-desc">I'll cook (or order) whatever you're craving. Your wish is my command!</div>
+                <div class="coupon-desc">I'll cook or order whatever you're craving.</div>
+                <div class="coupon-status">Tap to redeem</div>
+            </div>
+            
+            <div class="coupon" data-coupon="coffee">
+                <div class="coupon-emoji">☕</div>
+                <div class="coupon-title">Coffee Run</div>
+                <div class="coupon-desc">Your favorite coffee order, whenever you need it.</div>
+                <div class="coupon-status">Tap to redeem</div>
+            </div>
+            
+            <div class="coupon" data-coupon="bedtime">
+                <div class="coupon-emoji">🌙</div>
+                <div class="coupon-title">Bedtime Duty</div>
+                <div class="coupon-desc">I'll handle both kids at bedtime. You're off duty.</div>
                 <div class="coupon-status">Tap to redeem</div>
             </div>
         </div>
     </div>
     
     <script>
-        // Create floating hearts in background
+        // Photo carousel
+        const track = document.getElementById('carouselTrack');
+        const dotsContainer = document.getElementById('carouselDots');
+        const slides = track.querySelectorAll('.carousel-slide');
+        let currentSlide = 0;
+        
+        // Create dots
+        slides.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            if (i === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsContainer.appendChild(dot);
+        });
+        
+        const dots = dotsContainer.querySelectorAll('.dot');
+        
+        function goToSlide(n) {
+            currentSlide = n;
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+        
+        // Auto-advance carousel
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % slides.length;
+            goToSlide(currentSlide);
+        }, 4000);
+        
+        // Floating hearts
         const heartsBackground = document.getElementById('heartsBackground');
         for (let i = 0; i < 15; i++) {
             const heart = document.createElement('div');
@@ -388,41 +440,99 @@
         const noBtn = document.getElementById('noBtn');
         const couponsScreen = document.getElementById('couponsScreen');
         
-        // Teleport No button on press
-        const teleportButton = () => {
-            const padding = 50;
-            const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-            const maxY = window.innerHeight - noBtn.offsetHeight - padding;
-            
-            const x = padding + Math.random() * (maxX - padding);
-            const y = padding + Math.random() * (maxY - padding);
-            
-            // Pause animation, teleport, restart
-            noBtn.style.animation = 'none';
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
-            
-            setTimeout(() => {
-                noBtn.style.animation = 'moveAround 8s infinite ease-in-out';
-            }, 100);
-        };
+        // Initialize No button position
+        let currentX = window.innerWidth * 0.2;
+        let currentY = window.innerHeight * 0.2;
+        let targetX = window.innerWidth * 0.8;
+        let targetY = window.innerHeight * 0.7;
         
-        // Only teleport on actual press
+        noBtn.style.left = `${currentX}px`;
+        noBtn.style.top = `${currentY}px`;
+        
+        // Smooth movement
+        function moveToTarget() {
+            currentX += (targetX - currentX) * 0.05;
+            currentY += (targetY - currentY) * 0.05;
+            
+            noBtn.style.left = `${currentX}px`;
+            noBtn.style.top = `${currentY}px`;
+            
+            // Pick new target when close
+            if (Math.abs(targetX - currentX) < 2 && Math.abs(targetY - currentY) < 2) {
+                const padding = 80;
+                targetX = padding + Math.random() * (window.innerWidth - padding * 2);
+                targetY = padding + Math.random() * (window.innerHeight - padding * 2);
+            }
+            
+            requestAnimationFrame(moveToTarget);
+        }
+        moveToTarget();
+        
+        // Teleport away from tap/click
+        function teleportAway(tapX, tapY) {
+            const padding = 80;
+            const maxX = window.innerWidth - padding;
+            const maxY = window.innerHeight - padding;
+            
+            // Calculate distance to each corner/edge
+            const corners = [
+                { x: padding, y: padding },
+                { x: maxX, y: padding },
+                { x: padding, y: maxY },
+                { x: maxX, y: maxY },
+                { x: window.innerWidth / 2, y: padding },
+                { x: window.innerWidth / 2, y: maxY },
+                { x: padding, y: window.innerHeight / 2 },
+                { x: maxX, y: window.innerHeight / 2 }
+            ];
+            
+            // Find the farthest point
+            let farthest = corners[0];
+            let maxDist = 0;
+            
+            corners.forEach(corner => {
+                const dist = Math.sqrt(
+                    Math.pow(corner.x - tapX, 2) + 
+                    Math.pow(corner.y - tapY, 2)
+                );
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    farthest = corner;
+                }
+            });
+            
+            // Add some randomness around the farthest point
+            const randomOffset = 50;
+            currentX = farthest.x + (Math.random() - 0.5) * randomOffset;
+            currentY = farthest.y + (Math.random() - 0.5) * randomOffset;
+            
+            // Clamp to bounds
+            currentX = Math.max(padding, Math.min(maxX, currentX));
+            currentY = Math.max(padding, Math.min(maxY, currentY));
+            
+            targetX = currentX;
+            targetY = currentY;
+            
+            noBtn.style.left = `${currentX}px`;
+            noBtn.style.top = `${currentY}px`;
+        }
+        
         noBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            teleportButton();
+            const touch = e.touches[0];
+            teleportAway(touch.clientX, touch.clientY);
         });
         
         noBtn.addEventListener('mousedown', (e) => {
             e.preventDefault();
-            teleportButton();
+            teleportAway(e.clientX, e.clientY);
         });
         
         // Yes button - show coupons
         yesBtn.addEventListener('click', () => {
             couponsScreen.classList.add('active');
             
-            // Create confetti
+            // Confetti
             for (let i = 0; i < 30; i++) {
                 setTimeout(() => {
                     const confetti = document.createElement('div');
@@ -458,7 +568,7 @@
                 
                 if (coupon.classList.contains('redeemed')) {
                     // Un-redeem
-                    if (confirm('Mark this coupon as unused again?')) {
+                    if (confirm('Mark this coupon as unused?')) {
                         coupon.classList.remove('redeemed');
                         const status = coupon.querySelector('.coupon-status');
                         status.textContent = 'Tap to redeem';
@@ -479,7 +589,7 @@
                     localStorage.setItem('redeemedCoupons', JSON.stringify(redeemedCoupons));
                     localStorage.setItem(`coupon-${id}-date`, date);
                     
-                    // Celebration effect
+                    // Sparkles
                     for (let i = 0; i < 10; i++) {
                         setTimeout(() => {
                             const sparkle = document.createElement('div');
