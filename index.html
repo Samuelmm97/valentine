@@ -122,7 +122,6 @@
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            cursor: pointer;
         }
         
         .fullscreen-overlay.active {
@@ -130,9 +129,63 @@
         }
         
         .fullscreen-overlay img {
-            max-width: 95%;
-            max-height: 95%;
+            max-width: 90%;
+            max-height: 90%;
             object-fit: contain;
+        }
+        
+        .fullscreen-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            z-index: 10000;
+        }
+        
+        .fullscreen-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .fullscreen-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+            z-index: 10000;
+        }
+        
+        .fullscreen-nav:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .fullscreen-nav.prev {
+            left: 20px;
+        }
+        
+        .fullscreen-nav.next {
+            right: 20px;
         }
         
         h1 {
@@ -326,6 +379,16 @@
             }
             .coupons-title { font-size: 2rem; }
             .coupon-title { font-size: 1.2rem; }
+            .fullscreen-close {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+            .fullscreen-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
@@ -356,6 +419,9 @@
     <button id="noBtn">Nah 💔</button>
     
     <div class="fullscreen-overlay" id="fullscreenOverlay">
+        <button class="fullscreen-close" id="fullscreenClose">×</button>
+        <button class="fullscreen-nav prev" id="fullscreenPrev">‹</button>
+        <button class="fullscreen-nav next" id="fullscreenNext">›</button>
         <img id="fullscreenImg" src="" alt="">
     </div>
     
@@ -429,7 +495,11 @@
         const slides = track.querySelectorAll('.carousel-slide');
         const fullscreenOverlay = document.getElementById('fullscreenOverlay');
         const fullscreenImg = document.getElementById('fullscreenImg');
+        const fullscreenClose = document.getElementById('fullscreenClose');
+        const fullscreenPrev = document.getElementById('fullscreenPrev');
+        const fullscreenNext = document.getElementById('fullscreenNext');
         let currentSlide = 0;
+        let fullscreenSlide = 0;
         
         // Create dots
         slides.forEach((_, i) => {
@@ -460,15 +530,55 @@
         }, 4000);
         
         // Fullscreen photos
-        document.getElementById('photoCarousel').addEventListener('click', (e) => {
-            if (e.target.closest('.dot')) return; // Don't fullscreen on dot click
-            const currentImg = slides[currentSlide].querySelector('img');
-            fullscreenImg.src = currentImg.src;
+        function openFullscreen(index) {
+            fullscreenSlide = index;
+            const img = slides[fullscreenSlide].querySelector('img');
+            fullscreenImg.src = img.src;
             fullscreenOverlay.classList.add('active');
+        }
+        
+        function closeFullscreen() {
+            fullscreenOverlay.classList.remove('active');
+        }
+        
+        function nextFullscreenPhoto() {
+            fullscreenSlide = (fullscreenSlide + 1) % slides.length;
+            const img = slides[fullscreenSlide].querySelector('img');
+            fullscreenImg.src = img.src;
+        }
+        
+        function prevFullscreenPhoto() {
+            fullscreenSlide = (fullscreenSlide - 1 + slides.length) % slides.length;
+            const img = slides[fullscreenSlide].querySelector('img');
+            fullscreenImg.src = img.src;
+        }
+        
+        document.getElementById('photoCarousel').addEventListener('click', (e) => {
+            if (e.target.closest('.dot')) return;
+            openFullscreen(currentSlide);
         });
         
-        fullscreenOverlay.addEventListener('click', () => {
-            fullscreenOverlay.classList.remove('active');
+        fullscreenClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeFullscreen();
+        });
+        
+        fullscreenPrev.addEventListener('click', (e) => {
+            e.stopPropagation();
+            prevFullscreenPhoto();
+        });
+        
+        fullscreenNext.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextFullscreenPhoto();
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!fullscreenOverlay.classList.contains('active')) return;
+            if (e.key === 'Escape') closeFullscreen();
+            if (e.key === 'ArrowLeft') prevFullscreenPhoto();
+            if (e.key === 'ArrowRight') nextFullscreenPhoto();
         });
         
         // Floating hearts
