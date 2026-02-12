@@ -626,14 +626,40 @@
             noBtn.style.top = `${pos.y}px`;
         }
         
-        // Initialize position
-        moveButton();
-        
-        // Move every 3 seconds
-        setInterval(moveButton, 3000);
+        // Initialize position: start near the Yes button like a normal prompt
+        function placeNoButtonNearYes() {
+            const padding = 16;
+            const yesRect = yesBtn.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+
+            // Try to place it just below the Yes button, centered
+            let x = yesRect.left + (yesRect.width - btnRect.width) / 2;
+            let y = yesRect.bottom + 12;
+
+            // Clamp into viewport
+            x = Math.max(padding, Math.min(window.innerWidth - btnRect.width - padding, x));
+            y = Math.max(padding, Math.min(window.innerHeight - btnRect.height - padding, y));
+
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
+        }
+
+        // Start next to Yes, then begin moving shortly after
+        placeNoButtonNearYes();
+
+        // Move every 3 seconds (after a brief delay so it's easy to find)
+        setTimeout(() => {
+            moveButton();
+            setInterval(moveButton, 3000);
+        }, 900);
         
         // Teleport away from tap/click to farthest point
         function teleportAway(tapX, tapY) {
+            // If the user taps very quickly before the first move interval,
+            // make sure the button is already on-screen.
+            if (!noBtn.style.left || !noBtn.style.top) {
+                placeNoButtonNearYes();
+            }
             const padding = 80;
             const btnRect = noBtn.getBoundingClientRect();
             const maxX = window.innerWidth - btnRect.width - padding;
