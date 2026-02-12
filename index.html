@@ -621,11 +621,12 @@
         }
         
         function moveButton() {
+            // Legacy random movement (kept for reference)
             const pos = getRandomPosition();
             noBtn.style.left = `${pos.x}px`;
             noBtn.style.top = `${pos.y}px`;
         }
-        
+
         // Initialize position: start near the Yes button like a normal prompt
         function placeNoButtonNearYes() {
             const padding = 16;
@@ -644,14 +645,90 @@
             noBtn.style.top = `${y}px`;
         }
 
-        // Start next to Yes, then begin moving shortly after
-        placeNoButtonNearYes();
+        // DVD-logo style bouncing movement
+        let bounceAnimId = null;
+        let bounceState = {
+            x: 0,
+            y: 0,
+            vx: 420, // px/sec
+            vy: 360, // px/sec
+            lastTs: 0
+        };
 
-        // Move every 3 seconds (after a brief delay so it's easy to find)
+        function startBounce() {
+            const btnRect = noBtn.getBoundingClientRect();
+            const left = Number.parseFloat(noBtn.style.left || '0');
+            const top = Number.parseFloat(noBtn.style.top || '0');
+
+            bounceState.x = Number.isFinite(left) ? left : 0;
+            bounceState.y = Number.isFinite(top) ? top : 0;
+            bounceState.lastTs = 0;
+
+            // Add a little randomness so it doesn't always take the same path
+            const dirX = Math.random() < 0.5 ? -1 : 1;
+            const dirY = Math.random() < 0.5 ? -1 : 1;
+            bounceState.vx = Math.abs(bounceState.vx) * dirX;
+            bounceState.vy = Math.abs(bounceState.vy) * dirY;
+
+            function step(ts) {
+                if (!bounceState.lastTs) bounceState.lastTs = ts;
+                const dt = Math.min(0.05, (ts - bounceState.lastTs) / 1000); // cap to avoid huge jumps
+                bounceState.lastTs = ts;
+
+                const padding = 12;
+                const maxX = window.innerWidth - btnRect.width - padding;
+                const maxY = window.innerHeight - btnRect.height - padding;
+
+                bounceState.x += bounceState.vx * dt;
+                bounceState.y += bounceState.vy * dt;
+
+                // Bounce on walls
+                if (bounceState.x <= padding) {
+                    bounceState.x = padding;
+                    bounceState.vx = Math.abs(bounceState.vx);
+                } else if (bounceState.x >= maxX) {
+                    bounceState.x = maxX;
+                    bounceState.vx = -Math.abs(bounceState.vx);
+                }
+
+                if (bounceState.y <= padding) {
+                    bounceState.y = padding;
+                    bounceState.vy = Math.abs(bounceState.vy);
+                } else if (bounceState.y >= maxY) {
+                    bounceState.y = maxY;
+                    bounceState.vy = -Math.abs(bounceState.vy);
+                }
+
+                noBtn.style.left = `${bounceState.x}px`;
+                noBtn.style.top = `${bounceState.y}px`;
+
+                bounceAnimId = requestAnimationFrame(step);
+            }
+
+            if (bounceAnimId) cancelAnimationFrame(bounceAnimId);
+            bounceAnimId = requestAnimationFrame(step);
+        }
+
+        // Start next to Yes, then begin bouncing shortly after
+        placeNoButtonNearYes();
         setTimeout(() => {
-            moveButton();
-            setInterval(moveButton, 3000);
-        }, 900);
+            // Disable the slow transition so the bounce feels snappy
+            noBtn.style.transition = 'none';
+            startBounce();
+        }, 700);
+
+        // Keep it constrained correctly on resize
+        window.addEventListener('resize', () => {
+            if (!bounceAnimId) return;
+            const btnRect = noBtn.getBoundingClientRect();
+            const padding = 12;
+            const maxX = window.innerWidth - btnRect.width - padding;
+            const maxY = window.innerHeight - btnRect.height - padding;
+            bounceState.x = Math.max(padding, Math.min(maxX, bounceState.x));
+            bounceState.y = Math.max(padding, Math.min(maxY, bounceState.y));
+            noBtn.style.left = `${bounceState.x}px`;
+            noBtn.style.top = `${bounceState.y}px`;
+        });
         
         // Teleport away from tap/click to farthest point
         function teleportAway(tapX, tapY) {
@@ -701,14 +778,16 @@
             newX = Math.max(padding, Math.min(maxX, newX));
             newY = Math.max(padding, Math.min(maxY, newY));
             
-            // Disable transition, teleport, re-enable
+            // Teleport immediately (bounce animation will keep moving from here)
             noBtn.style.transition = 'none';
             noBtn.style.left = `${newX}px`;
             noBtn.style.top = `${newY}px`;
-            
-            setTimeout(() => {
-                noBtn.style.transition = 'left 3s ease-in-out, top 3s ease-in-out';
-            }, 50);
+
+            // If we're bouncing, update the state so it doesn't snap back
+            if (bounceAnimId) {
+                bounceState.x = newX;
+                bounceState.y = newY;
+            }
         }
         
         noBtn.addEventListener('touchstart', (e) => {
